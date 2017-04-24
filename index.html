@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>STOR Tenders</title>
+	<script src="d3.min.js" type="text/javascript">
+
+	</script>
+
+	<style>
+
+	    div.seasons_buttons {
+        position: fixed;
+        top: 20px;
+        left: 50px;
+      }
+
+        div.seasons_buttons div {
+        	background-color: rgb(112, 200, 190);
+        	padding: 3px;
+        	margin: 7px;
+        }
+
+
+    </style>  
+
+</head>
+<body>
+	<script type="text/javascript">
+
+
+	  function draw(data) {
+ 
+	  	"use strict";
+	  	var margins = {top:20, left:150, right:30, bottom:20};
+	  	var svgViewport = d3.select("body").append("svg").attr("width", 1500).attr("height", 700);
+	  	var width = 1500 - margins.left - margins.right;
+	  	var height = 700 - margins.top - margins.bottom; 
+	  	var innerSpace = svgViewport.append("g")
+	  						 .attr("transform", "translate(" + margins.left + "," + margins.top + ")");
+
+	  	var xAxisScale = d3.scaleLinear().domain(d3.extent(data, function(d){return d.Utilisation_Price;}))
+	  									 .range([0, width]);
+
+	  	var yAxisScale = d3.scaleLinear().domain(d3.extent(data, function(d){return d.Availability_Price;}))
+	  									 .range([height, 0]);	
+
+	  	var radiusScale = d3.scaleSqrt().domain(d3.extent(data, function(d){return d.Contracted_MW;}))
+	  									.range([5, 20]);	
+
+	  	var xAxis = d3.axisBottom(xAxisScale);		
+	  	var yAxis = d3.axisLeft(yAxisScale);
+
+	  	var axisXGroup = innerSpace.append("g").call(xAxis).attr("transform", "translate(0," + height + ")" );
+	  	var axisYGroup = innerSpace.append("g").call(yAxis);  
+
+	  	function ID_func(d) {
+                return d['local_ID'];
+              }
+
+	  	var circles = innerSpace.append("g")
+	  							.selectAll("circle")
+	  							.data(data, ID_func)
+	  							.enter()
+	  							.append("circle")
+	  							.attr("cx", function(d){ return xAxisScale(d.Utilisation_Price); })
+	  							.attr("cy", function(d){ return yAxisScale(d.Availability_Price); })
+								.attr("r", function(d){ return radiusScale(d.Contracted_MW); })
+	  							.attr("fill", function(d){ if(d.Accepted==="TRUE")
+	  								{return "green"}else{return "red"} } )
+	  							.attr("opacity", 0.2);
+
+	  	function update(season) {
+	  		var filtered = data.filter(function(d) { return d.Season == season; }); 
+
+	  		var updated_circles = innerSpace.selectAll("circle").data(filtered, ID_func); 
+
+	  		updated_circles.exit().remove();
+
+	  		updated_circles.enter()
+	  					   	.append("circle")
+	  					   	.transition()
+	  					   	.duration(1000)
+	  						.attr("cx", function(d){ return xAxisScale(d.Utilisation_Price); })
+	  						.attr("cy", function(d){ return yAxisScale(d.Availability_Price); })
+	  						.attr("r", function(d){ return radiusScale(d.Contracted_MW); })
+	  						.attr("fill", function(d){ if(d.Accepted==="TRUE")
+	  								{return "green"}else{return "red"} } )
+	  						.attr("opacity", 0.2);
+
+	  	}						
+
+	  	var seasons = [11.1, 11.2, 11.3, 11.4, 11.5, 11.6]
+
+	  	var buttons = d3.select("body")
+                      	.append("div")
+                        .attr("class", "seasons_buttons")
+                        .selectAll("div")
+                        .data(seasons)
+                        .enter()
+                        .append("div")
+                        .text(function(d){return d;});
+
+        buttons.on("click", function (d) {
+        	d3.select(".seasons_buttons")
+        		.selectAll("div")
+        		.transition()
+        		.duration(500)
+        		.style("background-color", "rgb(112, 200, 190)");
+
+        	d3.select(this)
+        		.transition()
+        		.duration(500)
+        		.style("background-color", "white");
+
+        	update(d);
+        	});
+
+        var all_button = d3.select(".seasons_buttons")
+        					.append("div")
+        					.text("All seasons");
+
+        all_button.on("click", function(d){
+
+        	d3.select(".seasons_buttons")
+        		.selectAll("div")
+        		.transition()
+        		.duration(500)
+        		.style("background-color", "rgb(112, 200, 190)");
+
+        	d3.select(this)
+        		.transition()
+        		.duration(500)
+        		.style("background-color", "white");
+
+        	innerSpace.selectAll("circle")
+        			  .data(data, ID_func)
+        			  .enter()
+        			  .append("circle")
+					  .transition()
+	  				  .duration(1000)
+	  				  .attr("cx", function(d){ return xAxisScale(d.Utilisation_Price); })
+	  				  .attr("cy", function(d){ return yAxisScale(d.Availability_Price); })
+	  				  .attr("r", function(d){ return radiusScale(d.Contracted_MW); })
+	  				  .attr("fill", function(d){ if(d.Accepted==="TRUE")
+	  								{return "green"}else{return "red"} } )
+	  				  .attr("opacity", 0.2);        			  		
+        })
+
+	  }
+
+
+		//var callbackError;
+		//var callbackData;
+		//d3.csv("TR28_29_30_31_for_Y11.csv", function(error, data) {callbackError=error; callbackData=data; 
+		//										callbackData.forEach(
+		//											function(d){d.Response_Time = +d.Response_Time;
+		//												d.Availability_Price = +d.Availability_Price;
+		//												d.Utilisation_Price = +d.Utilisation_Price;
+		//												d.Contracted_MW = +d.Contracted_MW;
+		//												return d;
+		//												})
+		//										});
+
+		d3.csv("TR28_29_30_31_for_Y11.csv", function(d){d.Response_Time = +d.Response_Time;
+														d.Availability_Price = +d.Availability_Price;
+														d.Utilisation_Price = +d.Utilisation_Price;
+														d.Contracted_MW = +d.Contracted_MW;
+														return d;
+														}, draw); 
+												
+
+
+	</script>
+</body>
+</html>
