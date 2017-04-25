@@ -8,10 +8,20 @@
 
 	<style>
 
+		h3{text-align: center;}
+
+		.title_button {
+			position: fixed;
+			top: 40px;
+			left: 30px;
+			font-size: 22;
+			font-weight: bold;
+		}
+
 	    div.seasons_buttons {
         position: fixed;
-        top: 20px;
-        left: 50px;
+        top: 60px;
+        left: 30px;
       }
 
         div.seasons_buttons div {
@@ -31,12 +41,54 @@
 	  function draw(data) {
  
 	  	"use strict";
-	  	var margins = {top:20, left:150, right:30, bottom:20};
-	  	var svgViewport = d3.select("body").append("svg").attr("width", 1500).attr("height", 700);
-	  	var width = 1500 - margins.left - margins.right;
-	  	var height = 700 - margins.top - margins.bottom; 
-	  	var innerSpace = svgViewport.append("g")
+	  	var data = data.filter(function(d){ return d.Utilisation_Price<450; });
+
+	  	d3.select("body").append("h3").text("Results of the latest (as of Apr 2017) four tenders in Britain's Short Term Operating Reserve (STOR) market");
+
+	  	var margins = {top:10, left:110, right:30, bottom:30, between:50};
+	  	var svgViewport = d3.select("body").append("svg").attr("width", 1250).attr("height", 550);
+	  	var width = (1250 - margins.left - margins.right - margins.between) / 2;
+	  	var height = (550 - margins.top - margins.bottom - margins.between) / 2; 
+	  	var innerSpace11 = svgViewport.append("g").attr("id", "is11")
 	  						 .attr("transform", "translate(" + margins.left + "," + margins.top + ")");
+	  	var innerSpace12 = svgViewport.append("g").attr("id", "is12")
+	  						 .attr("transform", "translate(" + (margins.left + width + margins.between) + "," + margins.top + ")");
+	  	var innerSpace21 = svgViewport.append("g").attr("id", "is21")
+	  						 .attr("transform", "translate(" + margins.left + "," + (margins.top + height + margins.between) + ")");	  					
+	  	var innerSpace22 = svgViewport.append("g").attr("id", "is22")
+	  						.attr("transform", "translate(" + (margins.left + width + margins.between) + "," + (margins.top + height + margins.between) + ")");		  						 
+	  	//Set titles					
+        innerSpace11.append("text").text("Tender Round 28").attr("transform", "translate(" + width/2 + "," + 10 + ")")
+        							.attr("text-anchor", "middle").attr("font-size", "22");
+		innerSpace12.append("text").text("Tender Round 29").attr("transform", "translate(" + width/2 + "," + 10 + ")")
+        							.attr("text-anchor", "middle").attr("font-size", "22");        							
+		innerSpace21.append("text").text("Tender Round 30").attr("transform", "translate(" + width/2 + "," + 10 + ")")
+        							.attr("text-anchor", "middle").attr("font-size", "22"); 
+		innerSpace22.append("text").text("Tender Round 31").attr("transform", "translate(" + width/2 + "," + 10 + ")")
+        							.attr("text-anchor", "middle").attr("font-size", "22");     
+        //Set axis titles		
+        function set_xtitle(el) { return el.append("text").text("Utilization price, GBP/MWh").
+        								attr("transform", "translate(" + width + "," + (height + 28) + ")")
+        								.attr("text-anchor", "end").attr("font-size", "12"); }
+        
+        set_xtitle(innerSpace11);
+        set_xtitle(innerSpace12);
+        set_xtitle(innerSpace21);
+        set_xtitle(innerSpace22);								
+           														
+
+        function set_ytitle(el) { return el.append("text").text("Availability price, GBP/MW/hr") 
+        							.attr("transform", "rotate(-90)")
+        							.attr("y", 0 - 26)
+        							.attr("x", 0 - height/2)
+        							.attr("text-anchor", "middle").attr("font-size", "12"); }		
+        
+        set_ytitle(innerSpace11);
+        set_ytitle(innerSpace12);							
+        set_ytitle(innerSpace21);	
+        set_ytitle(innerSpace22);		
+
+        //Set scales
 
 	  	var xAxisScale = d3.scaleLinear().domain(d3.extent(data, function(d){return d.Utilisation_Price;}))
 	  									 .range([0, width]);
@@ -45,21 +97,96 @@
 	  									 .range([height, 0]);	
 
 	  	var radiusScale = d3.scaleSqrt().domain(d3.extent(data, function(d){return d.Contracted_MW;}))
-	  									.range([5, 20]);	
+	  									.range([5, 20]);				
+
+        //Set legend 
+        var legend = svgViewport.append("g")
+        						.attr("class", "legend")
+        						.attr("transform", "translate(" + (width + margins.between + width) +"," + height/8 +")")
+        						.selectAll("g")
+        						.data(["Accepted bids", "Rejected bids", "Size 3 MW", "Size 300 MW"])
+        						.enter()
+        						.append("g"); 
+
+        legend.append("circle")
+        		.attr("cy", function(d,i){ return i*30; })
+        		.attr("r", function(d){ if(d==="Accepted bids" || d==="Rejected bids"){ return 5; }
+        				                if(d==="Size 3 MW"){ return radiusScale(3); }
+        				                else{ return radiusScale(300); }
+        				  })
+        		.attr("fill", function(d){ if(d==="Accepted bids"){ return "green"; }
+        			if(d==="Rejected bids"){ return "red"; }
+        			else{ return "black"; } });	
+
+        legend.append("text")
+        		.attr("y", function(d,i){ return i*30 + 4 ;})
+        		.attr("x", 22)	
+        		.text(function(d){ return d; });	
+
 
 	  	var xAxis = d3.axisBottom(xAxisScale);		
 	  	var yAxis = d3.axisLeft(yAxisScale);
 
-	  	var axisXGroup = innerSpace.append("g").call(xAxis).attr("transform", "translate(0," + height + ")" );
-	  	var axisYGroup = innerSpace.append("g").call(yAxis);  
+	  	var axisXGroup11 = innerSpace11.append("g").call(xAxis).attr("transform", "translate(0," + height + ")" );
+	  	var axisYGroup11 = innerSpace11.append("g").call(yAxis);  
+
+	  	var axisXGroup12 = innerSpace12.append("g").call(xAxis).attr("transform", "translate(0," + height + ")" );
+	  	var axisYGroup12 = innerSpace12.append("g").call(yAxis);  
+
+	  	var axisXGroup21 = innerSpace21.append("g").call(xAxis).attr("transform", "translate(0," + height + ")" );
+	  	var axisYGroup21 = innerSpace21.append("g").call(yAxis);  
+
+	  	var axisXGroup22 = innerSpace22.append("g").call(xAxis).attr("transform", "translate(0," + height + ")" );
+	  	var axisYGroup22 = innerSpace22.append("g").call(yAxis);  
+
+	  	var data11 = data.filter(function(d){ return d.TR === "TR28"; });
+		var data12 = data.filter(function(d){ return d.TR === "TR29"; });
+		var data21 = data.filter(function(d){ return d.TR === "TR30"; });
+		var data22 = data.filter(function(d){ return d.TR === "TR31"; });
 
 	  	function ID_func(d) {
                 return d['local_ID'];
               }
 
-	  	var circles = innerSpace.append("g")
+	  	var circles11 = innerSpace11.append("g")
 	  							.selectAll("circle")
-	  							.data(data, ID_func)
+	  							.data(data11, ID_func)
+	  							.enter()
+	  							.append("circle")
+	  							.attr("cx", function(d){ return xAxisScale(d.Utilisation_Price); })
+	  							.attr("cy", function(d){ return yAxisScale(d.Availability_Price); })
+								.attr("r", function(d){ return radiusScale(d.Contracted_MW); })
+	  							.attr("fill", function(d){ if(d.Accepted==="TRUE")
+	  								{return "green"}else{return "red"} } )
+	  							.attr("opacity", 0.2);
+
+	  	var circles12 = innerSpace12.append("g")
+	  							.selectAll("circle")
+	  							.data(data12, ID_func)
+	  							.enter()
+	  							.append("circle")
+	  							.attr("cx", function(d){ return xAxisScale(d.Utilisation_Price); })
+	  							.attr("cy", function(d){ return yAxisScale(d.Availability_Price); })
+								.attr("r", function(d){ return radiusScale(d.Contracted_MW); })
+	  							.attr("fill", function(d){ if(d.Accepted==="TRUE")
+	  								{return "green"}else{return "red"} } )
+	  							.attr("opacity", 0.2);
+
+	  	var circles21 = innerSpace21.append("g")
+	  							.selectAll("circle")
+	  							.data(data21, ID_func)
+	  							.enter()
+	  							.append("circle")
+	  							.attr("cx", function(d){ return xAxisScale(d.Utilisation_Price); })
+	  							.attr("cy", function(d){ return yAxisScale(d.Availability_Price); })
+								.attr("r", function(d){ return radiusScale(d.Contracted_MW); })
+	  							.attr("fill", function(d){ if(d.Accepted==="TRUE")
+	  								{return "green"}else{return "red"} } )
+	  							.attr("opacity", 0.2);
+
+	  	var circles22 = innerSpace22.append("g")
+	  							.selectAll("circle")
+	  							.data(data22, ID_func)
 	  							.enter()
 	  							.append("circle")
 	  							.attr("cx", function(d){ return xAxisScale(d.Utilisation_Price); })
@@ -70,13 +197,16 @@
 	  							.attr("opacity", 0.2);
 
 	  	function update(season) {
-	  		var filtered = data.filter(function(d) { return d.Season == season; }); 
+	  		var filtered11 = data11.filter(function(d) { return d.Season == season; }); 
+	  		var filtered12 = data12.filter(function(d) { return d.Season == season; });
+	  		var filtered21 = data21.filter(function(d) { return d.Season == season; });
+	  		var filtered22 = data22.filter(function(d) { return d.Season == season; });
 
-	  		var updated_circles = innerSpace.selectAll("circle").data(filtered, ID_func); 
+	  		var updated_circles11 = innerSpace11.selectAll("circle").data(filtered11, ID_func); 
 
-	  		updated_circles.exit().remove();
+	  		updated_circles11.exit().remove();
 
-	  		updated_circles.enter()
+	  		updated_circles11.enter()
 	  					   	.append("circle")
 	  					   	.transition()
 	  					   	.duration(1000)
@@ -87,9 +217,57 @@
 	  								{return "green"}else{return "red"} } )
 	  						.attr("opacity", 0.2);
 
+	  		var updated_circles12 = innerSpace12.selectAll("circle").data(filtered12, ID_func); 
+
+	  		updated_circles12.exit().remove();
+
+	  		updated_circles12.enter()
+	  					   	.append("circle")
+	  					   	.transition()
+	  					   	.duration(1000)
+	  						.attr("cx", function(d){ return xAxisScale(d.Utilisation_Price); })
+	  						.attr("cy", function(d){ return yAxisScale(d.Availability_Price); })
+	  						.attr("r", function(d){ return radiusScale(d.Contracted_MW); })
+	  						.attr("fill", function(d){ if(d.Accepted==="TRUE")
+	  								{return "green"}else{return "red"} } )
+	  						.attr("opacity", 0.2);
+
+	  		var updated_circles21 = innerSpace21.selectAll("circle").data(filtered21, ID_func); 
+
+	  		updated_circles21.exit().remove();
+
+	  		updated_circles21.enter()
+	  					   	.append("circle")
+	  					   	.transition()
+	  					   	.duration(1000)
+	  						.attr("cx", function(d){ return xAxisScale(d.Utilisation_Price); })
+	  						.attr("cy", function(d){ return yAxisScale(d.Availability_Price); })
+	  						.attr("r", function(d){ return radiusScale(d.Contracted_MW); })
+	  						.attr("fill", function(d){ if(d.Accepted==="TRUE")
+	  								{return "green"}else{return "red"} } )
+	  						.attr("opacity", 0.2);
+
+	  		var updated_circles22 = innerSpace22.selectAll("circle").data(filtered22, ID_func); 
+
+	  		updated_circles22.exit().remove();
+
+	  		updated_circles22.enter()
+	  					   	.append("circle")
+	  					   	.transition()
+	  					   	.duration(1000)
+	  						.attr("cx", function(d){ return xAxisScale(d.Utilisation_Price); })
+	  						.attr("cy", function(d){ return yAxisScale(d.Availability_Price); })
+	  						.attr("r", function(d){ return radiusScale(d.Contracted_MW); })
+	  						.attr("fill", function(d){ if(d.Accepted==="TRUE")
+	  								{return "green"}else{return "red"} } )
+	  						.attr("opacity", 0.2);
 	  	}						
 
 	  	var seasons = [11.1, 11.2, 11.3, 11.4, 11.5, 11.6]
+
+	  	d3.select("body").append("div")
+	  					 .attr("class", "title_button")
+	  					 .text("Season:")
 
 	  	var buttons = d3.select("body")
                       	.append("div")
@@ -117,7 +295,7 @@
 
         var all_button = d3.select(".seasons_buttons")
         					.append("div")
-        					.text("All seasons");
+        					.text("All");
 
         all_button.on("click", function(d){
 
@@ -132,34 +310,65 @@
         		.duration(500)
         		.style("background-color", "white");
 
-        	innerSpace.selectAll("circle")
-        			  .data(data, ID_func)
-        			  .enter()
-        			  .append("circle")
-					  .transition()
-	  				  .duration(1000)
-	  				  .attr("cx", function(d){ return xAxisScale(d.Utilisation_Price); })
-	  				  .attr("cy", function(d){ return yAxisScale(d.Availability_Price); })
-	  				  .attr("r", function(d){ return radiusScale(d.Contracted_MW); })
-	  				  .attr("fill", function(d){ if(d.Accepted==="TRUE")
+		var circles11 = innerSpace11.append("g")
+	  							.selectAll("circle")
+	  							.data(data11, ID_func)
+	  							.enter()
+	  							.append("circle")
+	  							.transition()
+	  							.duration(500)
+	  							.attr("cx", function(d){ return xAxisScale(d.Utilisation_Price); })
+	  							.attr("cy", function(d){ return yAxisScale(d.Availability_Price); })
+								.attr("r", function(d){ return radiusScale(d.Contracted_MW); })
+	  							.attr("fill", function(d){ if(d.Accepted==="TRUE")
 	  								{return "green"}else{return "red"} } )
-	  				  .attr("opacity", 0.2);        			  		
+	  							.attr("opacity", 0.2);
+
+	  	var circles12 = innerSpace12.append("g")
+	  							.selectAll("circle")
+	  							.data(data12, ID_func)
+	  							.enter()
+	  							.append("circle")
+	  							.transition()
+	  							.duration(500)
+	  							.attr("cx", function(d){ return xAxisScale(d.Utilisation_Price); })
+	  							.attr("cy", function(d){ return yAxisScale(d.Availability_Price); })
+								.attr("r", function(d){ return radiusScale(d.Contracted_MW); })
+	  							.attr("fill", function(d){ if(d.Accepted==="TRUE")
+	  								{return "green"}else{return "red"} } )
+	  							.attr("opacity", 0.2);
+
+	  	var circles21 = innerSpace21.append("g")
+	  							.selectAll("circle")
+	  							.data(data21, ID_func)
+	  							.enter()
+	  							.append("circle")
+	  							.transition()
+	  							.duration(500)
+	  							.attr("cx", function(d){ return xAxisScale(d.Utilisation_Price); })
+	  							.attr("cy", function(d){ return yAxisScale(d.Availability_Price); })
+								.attr("r", function(d){ return radiusScale(d.Contracted_MW); })
+	  							.attr("fill", function(d){ if(d.Accepted==="TRUE")
+	  								{return "green"}else{return "red"} } )
+	  							.attr("opacity", 0.2);
+
+	  	var circles22 = innerSpace22.append("g")
+	  							.selectAll("circle")
+	  							.data(data22, ID_func)
+	  							.enter()
+	  							.append("circle")
+	  							.transition()
+	  							.duration(500)
+	  							.attr("cx", function(d){ return xAxisScale(d.Utilisation_Price); })
+	  							.attr("cy", function(d){ return yAxisScale(d.Availability_Price); })
+								.attr("r", function(d){ return radiusScale(d.Contracted_MW); })
+	  							.attr("fill", function(d){ if(d.Accepted==="TRUE")
+	  								{return "green"}else{return "red"} } )
+	  							.attr("opacity", 0.2);      			  		
         })
 
 	  }
 
-
-		//var callbackError;
-		//var callbackData;
-		//d3.csv("TR28_29_30_31_for_Y11.csv", function(error, data) {callbackError=error; callbackData=data; 
-		//										callbackData.forEach(
-		//											function(d){d.Response_Time = +d.Response_Time;
-		//												d.Availability_Price = +d.Availability_Price;
-		//												d.Utilisation_Price = +d.Utilisation_Price;
-		//												d.Contracted_MW = +d.Contracted_MW;
-		//												return d;
-		//												})
-		//										});
 
 		d3.csv("TR28_29_30_31_for_Y11.csv", function(d){d.Response_Time = +d.Response_Time;
 														d.Availability_Price = +d.Availability_Price;
