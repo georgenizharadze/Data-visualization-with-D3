@@ -1,14 +1,12 @@
 ## Summary
 
-This visualization explores the results of a particular segment of Britain's electricity market. The Short-term Operating Reserve (STOR) market serves the purpose of making stand-by power generation capacity available to cover, at a short notice (20 min to 240 min), possible electricity shortfalls. STOR auctions are run approximately once per quarter. There are two types of participants in the market, so-called Balancing and Non-Balancing ones. The former are usually conventional, fossil-fuel power plants and the latter - more flexible resources, such as demand-side response. The visualization explores the relative pricing and sizes of the cleared bids of the two types of players and shows that the Balancing type are generally priced higher in terms of both availability and utilization prices and also come in bigger MW sizes. 
-
+This visualization explores the results of a particular segment of Britain's electricity market. The Short-term Operating Reserve (STOR) market serves the purpose of making stand-by power generation capacity available to cover, at a short notice (20 min to 240 min), possible electricity shortfalls. STOR auctions are run approximately once per quarter. There are two types of participants in the market, so-called Balancing and Non-Balancing ones. The former are usually conventional, fossil-fuel power plants and the latter - more flexible resources, such as demand-side response. The visualization explores the relative pricing and sizes of the cleared bids of the two types of players and shows that **the Balancing type are generally priced higher in terms of both availability and utilization prices and also tend to come in bigger MW sizes**. 
 
 
 ## Design
 
+The two main parameters for bidding in the tenders are (i) Utilization price and (ii) Availability price. Therefore, I decided to put these variables on X and Y axis, respectively. I believe that a scatterplot along these two dimensions conveys well the relative positions of various bids. Additionally, I decided to encode Balancing vs. Non-Balancing type and the size of the physical plant behind the bid. The former is a qualitative variable, hence I decided to encode it with colors. The latter is a continuous variable, therefore, I encoded it with circle area. I made sure that the area, not the radius, corresponded with the actual size. 
 
-
- 
 
 ## Feedback 
 
@@ -18,7 +16,7 @@ _Looking at your web link, I like the format of your graphs and the way you can 
 
 Feedback2:
 
-_I like the interactivity by seasons and the way you have broken data by tender rounds. You may want to crystallize the key message, the key takeaway, more effectively._
+_I like the interactivity by seasons and the way you have broken data by tender rounds. You may want to crystallize the main idea, the key takeaway, more effectively._
 
 Feedback 3:
 
