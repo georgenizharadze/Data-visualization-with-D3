@@ -7,6 +7,20 @@ This visualization explores the results of a particular segment of Britain's ele
 
 The two main parameters for bidding in the tenders are (i) Utilization price and (ii) Availability price. Therefore, I decided to put these variables on X and Y axis, respectively. I believe that a scatterplot along these two dimensions conveys well the relative positions of various bids. Additionally, I decided to encode Balancing vs. Non-Balancing type and the size of the physical plant behind the bid. The former is a qualitative variable, hence I decided to encode it with colors. The latter is a continuous variable, therefore, I encoded it with circle area. I made sure that the area, not the radius, corresponded with the actual size. 
 
+I decided to display four charts at once, each corresponding to a tender round, as I wanted to show that the higher price, larger size pattern for the Balancing type assets was consistent across the tenders. Also, looking at the tender charts separately allows the viewer to gauge the relative liquidity of the different tender rounds, e.g. Tender Round 28 was clearly most liquid, with the highest number of cleared bids. 
+
+I decided to put the legend at the bottom of overall charts area. This is more economical, as the horizontal space is quite constrained with the four charts and placing the legend on the left-hand side would have made squeezed the horizontal area even further. 
+
+After the feedback (see next section), I made the following design modifications:
+
+* Focused on the cleared bids only, to make a very clear distinction between Balancing and Non-Balancing types and crystallize the key point of the former ones being higher priced and larger size. 
+* Added grid lines for easier visual perception of price levels. 
+* Added an introductory paragraph to the chart, to give the viewer the context and highlight the key message. 
+* Spotted and corrected an error in the `scaleRadius` function, setting the lower bound of the `domain` and `range` to zero, as opposed to the minimum value in the data. This improved the visualization and helped better accentuate the key message.  
+* Changed the coloring of the Season buttons, highlighting the clicked one. 
+
+
+
 
 ## Feedback 
 
