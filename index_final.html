@@ -23,7 +23,7 @@
 	    div.seasons_buttons {
         position: absolute;
         top: 190px;
-        left: 30px;
+        left: 5px;
       	}
 
         div.seasons_buttons div {
@@ -61,11 +61,11 @@
 
 		d3.select("body")
 			.append("p")
-			.text("This visualization explores the results of a particular segment of Britain's electricity market. The Short-term Operating Reserve (STOR) market serves the purpose of making stand-by power generation capacity available to cover, at a short notice (20 min to 240 min), possible electricity shortfalls in the system. STOR tenders are run approximately once per quarter and in each tender, participants make separate bids for each season of the following year. There are 6 seasons in a year. There are two types of participants in the market, so-called Balancing and Non-Balancing ones. The former are usually conventional, fossil-fuel power plants and the latter - more flexible resources, such as demand-side response. The visualization explores the relative pricing and sizes of the cleared bids of the two types of players and shows that the ")
+			.text("Britain's Short-term Operating Reserve (STOR) market serves the purpose of making stand-by power generation capacity available to cover possible electricity shortfalls in the system. STOR tenders are run approximately quarterly. In each tender, participants make separate bids for the 6 seasons of each of the following two years. There are two types of participants in the market, so-called Balancing and Non-Balancing ones. The former are usually conventional, fossil-fuel power plants and the latter - more flexible resources, such as demand-side response. The visualization explores the relative pricing and sizes of the cleared bids of the two types of players in the 2017 seasons and shows that the ")
 			.append("b")
 			.text("Balancing type are generally priced higher in terms of both availability and utilization prices and also tend to come in bigger MW sizes.");
 
-		var margins = {top:10, left:110, right:30, bottom:70, between:50};
+		var margins = {top:10, left:120, right:20, bottom:70, between:50};
 		var svgViewport = d3.select("body")
 							.append("svg")
 							.attr("width", 1250)
@@ -86,16 +86,16 @@
 		  								.attr("transform", "translate(" + (margins.left + width + margins.between) + "," + (margins.top + height + margins.between) + ")");		  						 
 	  	//Set titles	
 	  	function set_plot_title(space, round){ return space.append("text")
-	  														.text("Tender Round " + round)
+	  														.text("Tender " + round)
 	  														.attr("transform", "translate(" + width/2 + "," + 10 + ")")
         													.attr("text-anchor", "middle")
         													.attr("font-size", "16")
         													.attr("font-weight", "bold"); }
 
-        set_plot_title(innerSpace11, 28); 
-		set_plot_title(innerSpace12, 29);      							
-		set_plot_title(innerSpace21, 30); 
-		set_plot_title(innerSpace22, 31); 
+        set_plot_title(innerSpace11, "December 2015"); 
+		set_plot_title(innerSpace12, "April 2016");      							
+		set_plot_title(innerSpace21, "July 2016"); 
+		set_plot_title(innerSpace22, "January 2017"); 
 
         //Set axis titles		
     	function set_xtitle(el){ return el.append("text").text("Utilization price, GBP/MWh")
@@ -108,7 +108,7 @@
 	    set_xtitle(innerSpace22);								
            														
 
-    	function set_ytitle(el) { return el.append("text").text("Availability price, GBP/MW/hr") 
+    	function set_ytitle(el){ return el.append("text").text("Availability price, GBP/MW/hr") 
         								.attr("transform", "rotate(-90)")
 	        							.attr("y", 0 - 26)
 	        							.attr("x", 0 - height/2)
@@ -154,7 +154,8 @@
         				  })
         		.attr("fill", function(d){ if(d==="Balancing"){ return col1; }
         			if(d==="Non-Balancing"){ return col2; }
-        			else{ return "black"; } });	
+        			else{ return "white"; } })
+        		.attr("stroke", function(d){ if (d==="Size 3 MW" || d==="Size 300 MW"){ return "black"; } } ) ;	
 
         legend.append("text")
         		.attr("x", function(d,i){ return i*180 + 18 ;})
@@ -295,11 +296,11 @@
 	  		plot_update(updated_circles22); 
 	  	}						
 
-	  	var seasons = [11.1, 11.2, 11.3, 11.4, 11.5, 11.6]
+	  	var seasons = [ [11.1, "Season 1"], [11.2, "Season 2"], [11.3, "Season 3"], [11.4, "Season 4"], [11.5, "Season 5"], [11.6, "Season 6"] ]
 
-	  	d3.select("body").append("div")
-	  					 .attr("class", "title_button")
-	  					 .text("Season:")
+	  	//d3.select("body").append("div")
+	  	//				 .attr("class", "title_button")
+	  	//				 .text("Season:")
 
 	  	var buttons = d3.select("body")
                       	.append("div")
@@ -308,7 +309,7 @@
                         .data(seasons)
                         .enter()
                         .append("div")
-                        .text(function(d){return d;});
+                        .text(function(d){return d[1];});
 
         buttons.on("click", function (d) {
         	d3.select(".seasons_buttons")
@@ -320,9 +321,9 @@
         	d3.select(this)
         		.transition()
         		.duration(500)
-        		.style("background-color", "rgb(112, 200, 190)");
+        		.style("background-color", "Silver");
 
-        	update(d);
+        	update(d[0]);
         });
 
         var all_button = d3.select(".seasons_buttons")
@@ -340,7 +341,7 @@
         	d3.select(this)
         		.transition()
         		.duration(500)
-        		.style("background-color", "rgb(112, 200, 190)"); 
+        		.style("background-color", "Silver"); 
 
 	  	var circles11 = plot_data(innerSpace11, data11)					
 	  	var circles12 = plot_data(innerSpace12, data12)
